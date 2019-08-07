@@ -59,3 +59,39 @@
  1. 为加载按钮绑定事件，在事件中 请求下一页数据
  2. 点击按钮 pageIndex++ ，然后 重新调用 getComments() 获取最新数据
  3. 为了防止 新数据 覆盖 老数据，调用 concat 方法 拼接数据
+
+## 发表评论
+ 1. 文本框做双向数据绑定
+ 2. 发送按钮绑定事件
+ 3. 校验文本是否为空
+ 4. 用 vue-resource 发送请求到服务器
+ 5. 发表评论成功后，用 unshift 方法 在数组中插入数据，并刷新列表
+
+## 改造 图片分享按钮 为 路由连接
+
+## 绘制图片列表
+ 1. 制作 顶部滑动条
+ 2. 制作 底部的图片列表
+### 顶部滑动条
+ 1. 使用 MUI 中的 tab-top-webview-main.html
+ 2. 去掉 slider 区域中的 mui-fullscreen 类
+ 2. 滑动条无法滑动 是JS组件 需要初始化
+  + 导入 mui.js
+  + 调用官方方法 去初始化：
+  ```
+    mui('.mui-scroll-wrapper').scroll({
+        deceleration: 0.0005 //flick 减速系数，系数越大，滚动速度越慢，滚动距离越小，默认值0.0006
+    });
+  ```
+ 4. 初始化 滑动条 时报错 `Uncaught TypeError: 'caller', 'callee', and 'arguments' properties may not be accessed on strict mode`
+  + 可能是 mui.js 中用到了 'caller', 'callee', and 'arguments' ，但严格模式无法使用
+  + 解决方案：1. 把上述三个去掉 2.禁用打包时的严格模式
+  + 移除严格模式 使用插件
+  $ npm install babel-plugin-transform-remove-strict-mod
+ 5. 刚进入 图片分享页面的时候， 需要等 DOM 加载完毕，所以把代码放入了 mounted 函数 
+ 6. 把 tabber 按钮的 mui-tab-item 类改名 不然 tabber 无法动
+ 7. 获取所有分类 并渲染 分类列表
+
+### 制作图片列表区域
+ 1. 图片列表用 Mint-UI 提供 现成的 `lazy-load`
+ 2. 渲染组件
