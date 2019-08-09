@@ -1,6 +1,10 @@
 <template>
   <div class="goodsinfo-container">
-    <!-- 商品轮播区域 -->
+    <transition @before-enter="beforeEnter" @enter="enter" @after-enter="afterEnter">
+      <div class="ball" v-show="ballFlag" ref="ball"></div>
+    </transition>
+
+    <!-- 商品轮播图区域 -->
     <div class="mui-card">
       <div class="mui-card-content">
         <div class="mui-card-content-inner">
@@ -21,11 +25,11 @@
           </p>
           <p>
             购买数量：
-            <numbox></numbox>
+            <numbox @getcount="getSelectedCount" :max="goodsinfo.stock_quantity"></numbox>
           </p>
           <p>
             <mt-button type="primary" size="small">立即购买</mt-button>
-            <mt-button type="danger" size="small">加入购物车</mt-button>
+            <mt-button type="danger" size="small" @click="addToShopCar">加入购物车</mt-button>
           </p>
         </div>
       </div>
@@ -58,7 +62,9 @@ export default {
     return {
       id: this.$route.params.id,
       lunbotu: [],
-      goodsinfo: {}
+      goodsinfo: {},
+      ballFlag: false,
+      selectCount:1
     };
   },
   created() {
@@ -83,19 +89,54 @@ export default {
         }
       });
     },
-    goDesc(id){
-        // 图文介绍
-        this.$router.push({name:'goodsdesc',params:{id}});
+    goDesc(id) {
+      // 图文介绍
+      this.$router.push({ name: "goodsdesc", params: { id } });
     },
-    goComment(id){
-        // 评论页面
-        this.$router.push({name:'goodscomment',params:{id}});
+    goComment(id) {
+      // 评论页面
+      this.$router.push({ name: "goodscomment", params: { id } });
+    },
+    addToShopCar() {
+      // 添加到 购物车
+      this.ballFlag = !this.ballFlag;
+    },
+    beforeEnter(el) {
+      el.style.transform = "translate(0,0)";
+    },
+    enter(el, done) {
+      el.offsetWidth;
+
+      // 优化思路
+      // 1. 先分析原因，因为界面写死
+      // 2. 需要 动态计算 坐标
+      // 3. 解决方法 先得到 徽标的 横纵坐标 再得到 小球的坐标 相减
+      // 4. 使用 domObject.getBoundingRect() 得到位置
+
+      const ballPosition = this.$refs.ball.getBoundingClientRect();
+      const badgePosition = document
+        .getElementById("badge")
+        .getBoundingClientRect();
+
+      const xDist = badgePosition.left - ballPosition.left;
+      const yDist = badgePosition.top - ballPosition.top;
+
+      el.style.transform = `translate(${xDist}px,${yDist}px)`;
+      el.style.transition = "all .5s cubic-bezier(.4,-0.3,1,.68) ";
+      done();
+    },
+    afterEnter(el) {
+      this.ballFlag = !this.ballFlag;
+    },
+    getSelectedCount(count){
+      this.selectCount = count;
+      console.log('父组件拿到的数量值为：'+ this.selectCount);
     }
   },
   components: {
     swiper,
     numbox
-  }
+  },
 };
 </script>
 
@@ -115,6 +156,17 @@ export default {
     button {
       margin: 15px 0;
     }
+  }
+
+  .ball {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background-color: red;
+    position: absolute;
+    z-index: 99;
+    top: 390px;
+    left: 152px;
   }
 }
 </style>
