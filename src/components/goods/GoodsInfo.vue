@@ -64,7 +64,7 @@ export default {
       lunbotu: [],
       goodsinfo: {},
       ballFlag: false,
-      selectCount:1
+      selectCount: 1
     };
   },
   created() {
@@ -100,6 +100,15 @@ export default {
     addToShopCar() {
       // 添加到 购物车
       this.ballFlag = !this.ballFlag;
+      // 保存到 store car 中的对象
+      var goodsinfo = {
+        id: this.id,
+        count: this.selectCount,
+        price: this.goodsinfo.sell_price,
+        selected: true
+      };
+
+      this.$store.commit('addToCar',goodsinfo);
     },
     beforeEnter(el) {
       el.style.transform = "translate(0,0)";
@@ -128,15 +137,15 @@ export default {
     afterEnter(el) {
       this.ballFlag = !this.ballFlag;
     },
-    getSelectedCount(count){
+    getSelectedCount(count) {
       this.selectCount = count;
-      console.log('父组件拿到的数量值为：'+ this.selectCount);
+      console.log("父组件拿到的数量值为：" + this.selectCount);
     }
   },
   components: {
     swiper,
     numbox
-  },
+  }
 };
 </script>
 
